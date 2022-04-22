@@ -12,6 +12,9 @@ export default async function (req: NowRequest, res: NowResponse): Promise<void>
   try {
     const pairs = await getTopPairs();
     const [ethPrice] = await getBundle("1");
+    
+    // TODO: Revert this temporary price after theGraph finish indexing 
+    const tempBTCBPrice = "39628.51"
 
     const tokens = pairs.reduce<ReturnShape>((accumulator, pair): ReturnShape => {
       for (const token of [pair.token0, pair.token1]) {
@@ -20,7 +23,7 @@ export default async function (req: NowRequest, res: NowResponse): Promise<void>
         accumulator[id] = {
           name: token.name,
           symbol: token.symbol,
-          last_price: new BigNumber(token.derivedETH).times(new BigNumber(ethPrice)).toNumber(),
+          last_price: token.symbol == "BTCB" ? new BigNumber(tempBTCBPrice).toNumber() : new BigNumber(token.derivedETH).times(new BigNumber(ethPrice)).toNumber(),
           maker_fee: 0,
           taker_fee: 0.002,
         };
